@@ -2,6 +2,7 @@ package uk.co.datadisk;
 
 import static uk.co.datadisk.ThreadColor.ANSI_GREEN;
 import static uk.co.datadisk.ThreadColor.ANSI_PURPLE;
+import static uk.co.datadisk.ThreadColor.ANSI_RED;
 
 public class Main_Thread_1 {
 
@@ -23,8 +24,22 @@ public class Main_Thread_1 {
 
         new Thread(() -> System.out.println(ANSI_GREEN + "Hello from the Anonymous thread class")).start();
 
-        Thread myRunnableThread = new Thread(new MyRunnable());
+        Thread myRunnableThread = new Thread(new MyRunnable(){
+            @Override
+            public void run() {
+                System.out.println(ANSI_RED + "Hello from the anonymous class's implementation of run()");
+                try {
+                    anotherThread.join(2000);
+                    System.out.println(ANSI_RED + "AnotherThread terminated or timed out, so I'm running again");
+                } catch (InterruptedException e){
+                    System.out.println("I could not wait after all. I was interrupted.");
+                }
+            }
+        });
         myRunnableThread.start();
+
+        //This kills terminates the thread by causing an exception
+        //anotherThread.interrupt();
 
         System.out.println(ANSI_PURPLE + "Hello again from the main thread");
 
