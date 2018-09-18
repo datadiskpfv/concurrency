@@ -19,7 +19,6 @@ public class Main_Thread_8 {
         //    but Thread1 is holding the paul lock, so Thread2 suspends.
 
         // RESULT = Deadlock
-
         new Thread(() -> paul.sayHello(lorraine)).start();
         new Thread(() -> lorraine.sayHello(paul)).start();
 
