@@ -1,10 +1,7 @@
 package uk.co.datadisk;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 import java.util.concurrent.*;
-import java.util.concurrent.locks.ReentrantLock;
 
 import static uk.co.datadisk.Main_Thread_6.EOF;
 
@@ -26,7 +23,7 @@ public class Main_Thread_6 {
         executorService.execute(myConsumer1);
         executorService.execute(myConsumer2);
 
-        Future<String> future = executorService.submit(new Callable<String>(){
+        Future<String> future = executorService.submit(new Callable<String>() {
             @Override
             public String call() throws Exception {
                 System.out.println(ThreadColor.ANSI_WHITE + "I'm being printed from the callable class");
@@ -38,7 +35,7 @@ public class Main_Thread_6 {
             System.out.println(future.get());
         } catch (ExecutionException e) {
             System.out.println("Something went wrong");
-        } catch (InterruptedException e){
+        } catch (InterruptedException e) {
             System.out.println("Thread running the task was interrupted");
         }
 
@@ -79,14 +76,13 @@ class MyProducer6 implements Runnable {
         // why we put it in a try catch block
         try {
             buffer.put("EOF");
-        } catch(InterruptedException e){
+        } catch (InterruptedException e) {
 
         }
     }
 }
 
 class MyConsumer6 implements Runnable {
-
     private ArrayBlockingQueue<String> buffer;
     private String color;
 
@@ -97,28 +93,25 @@ class MyConsumer6 implements Runnable {
 
     @Override
     public void run() {
-        int counter=0;
 
         while (true) {
-            if (bufferLock.tryLock()){
+            synchronized (buffer) {
                 try {
                     if (buffer.isEmpty()) {
                         continue;
                     }
 
-                    System.out.println(color + "Counter = " + counter);
-                    counter = 0;
-                    if (buffer.get(0).equals(EOF)) {
+                    if (buffer.peek().equals(EOF)) {
                         System.out.println(color + "Exiting");
                         break;
                     } else {
-                        System.out.println(color + "Removed " + buffer.remove(0));
+                        // ArrayBlockingQueue is a FIFO queue
+                        System.out.println(color + "Removed " + buffer.take());
                     }
-                } finally {
-                    bufferLock.unlock();
+                } catch (InterruptedException e) {
+                    System.out.println("Something went wrong");
                 }
             }
-            counter++;
         }
     }
 }
