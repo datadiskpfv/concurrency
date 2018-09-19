@@ -31,23 +31,25 @@ class NewBankAccount {
 
     public boolean withdraw(double amount) {
 
+        // this is slightly different than the deposit method, as I use a boolean flag variable
+        boolean flag = false;
+
         try {
-            if (lock.tryLock(1000, TimeUnit.MILLISECONDS)) {
+            flag = lock.tryLock(1000, TimeUnit.MILLISECONDS);
+            if (flag) {
                 try {
                     balance -= amount;
                     System.out.println(Thread.currentThread().getName() + " withdraw " + amount + " balance = " + balance);
-                    return true;
+                    // should the return of true really be here ???????
                 } finally {
                     lock.unlock();
                 }
             } else {
                 System.out.println("Could not get the WITHDRAW lock");
             }
-        } catch (InterruptedException e) {
+        } catch (InterruptedException e) {}
 
-        }
-
-        return false;
+        return flag;
     }
 
     public boolean deposit(double amount) {
@@ -64,9 +66,7 @@ class NewBankAccount {
             } else {
                 System.out.println("Could not get the DEPOSIT lock");
             }
-        } catch (InterruptedException e) {
-
-        }
+        } catch (InterruptedException e) {}
 
         return false;
     }
